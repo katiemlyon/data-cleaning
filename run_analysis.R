@@ -1,6 +1,6 @@
 # Getting and Cleaning Data Course Project
 
-# create one R script called run_analysis.R that does the following:
+# Create one R script called run_analysis.R that does the following:
 # Merges the training and the test sets to create one data set.
 # Extracts only the measurements on the mean and standard deviation for each measurement.
 # Uses descriptive activity names to name the activities in the data set
@@ -12,9 +12,9 @@
 library(reshape2)
 
 # download the data
-if(!file.exists("./data")){
-  dir.create("./data")
-  }
+if(!file.exists("data")){
+  dir.create("data")
+}
 file <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 download.file(file, "data/UCI HAR Dataset.zip", method="curl")
 
@@ -88,4 +88,3 @@ tidy <- dcast(melted, subjectID+activity ~ variable, mean)
 # write the tidy data set to a file
 write.csv(tidy, "tidy.csv", row.names=FALSE)
 write.table(tidy, "tidy.txt", row.names=FALSE)
-
