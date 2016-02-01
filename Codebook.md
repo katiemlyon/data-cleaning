@@ -7,7 +7,7 @@ This codebook describes the dataset, the individual data files, and the variable
 
 ## Files
 The dataset includes the following files:
-- features_info.txt: Information about the variables used on the feature vector.
+- 'features_info.txt': Information about the variables used on the feature vector.
 - 'features.txt': List of all features.
 - 'activity_labels.txt': Links the activity number with the activity name.
 - 'train/subject_train.txt': ID of the subject who performed the activity.
