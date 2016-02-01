@@ -34,13 +34,30 @@ X_test <- read.table("data/UCI HAR Dataset/test/X_test.txt")
 y_test <- read.table("data/UCI HAR Dataset/test/y_test.txt")
 
 # add column name for subject files
-names(subject_train) <- "subjectID"
-names(subject_test) <- "subjectID"
+names(subject_train) <- "id"
+names(subject_test) <- "subjectid"
+
+# Get the variable names
+features <- read.table("data/UCI HAR Dataset/features.txt", sep = " ", col.names = c("column.id", "varname"))
+
+# function to clean up variable names
+scrubber <- function(messy){
+  messy <- sub("\\()-", "", messy)
+  messy <- sub("\\()", "", messy)
+  messy <- gsub("-", "", messy)
+  messy <- sub("\\(", "", messy)
+  messy <- gsub("\\)", "", messy)
+  messy <- sub("\\,", "", messy)
+  messy <- tolower(messy)
+  return(messy)
+}
+
+# Now scrub the variable names
+features$scrubbed <- scrubber(features$varname)
 
 # add column names for measurement files
-features <- read.table("data/UCI HAR Dataset/features.txt")
-names(X_train) <- features$V2
-names(X_test) <- features$V2
+names(X_train) <- features$scrubbed
+names(X_test) <- features$scrubbed
 
 # add column name for label files
 names(y_train) <- "activity"
@@ -52,15 +69,17 @@ test <- cbind(subject_test, y_test, X_test)
 combined <- rbind(train, test)
 
 
+
 ## Step 2: Extract only the measurements on the mean and standard deviation for each measurement.
 
 # determine which columns contain "mean()" or "std()"
-meanstd <- grepl("mean\\(\\)", names(combined)) | grepl("std\\(\\)", names(combined))
+meanstd <- grepl("mean", names(combined)) | grepl("std", names(combined))
 
-# keep the subjectID and activity columns
+# keep the id and activity columns
 meanstd[1:2] <- TRUE
+meanstd
 
-# remove unnecessary columns
+# keep mean and std columns, remove unnecessary columns
 combined <- combined[, meanstd]
 
 
@@ -81,10 +100,14 @@ combined$activity <- factor(combined$activity,
 ## Step 5: Create a second, independent tidy data set with the
 ## average of each variable for each activity and each subject.
 
-# create the tidy data set
-melted <- melt(combined, id=c("subjectID","activity"))
-tidy <- dcast(melted, subjectID+activity ~ variable, mean)
+# melt the data set and make it tidy
+melted <- melt(combined, id = c("id", "activity"))
+tidy <- dcast(melted, id + activity ~ variable, mean)
+
 
 # write the tidy data set to a file
 write.csv(tidy, "tidy.csv", row.names=FALSE)
 write.table(tidy, "tidy.txt", row.names=FALSE)
+
+# write the new variable names to a file
+write.table(colnames(tidy), row.names = FALSE, "names.txt")
